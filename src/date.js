@@ -1,6 +1,6 @@
 /*
-  Credit:
-    Much credit goes to the datejs library (http://code.google.com/p/datejs/)
+  Credits:
+    datejs library (http://code.google.com/p/datejs/)
 */
 function $D(date)
 {

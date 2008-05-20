@@ -1,3 +1,7 @@
+/*
+  Credits:
+    Andrew Dupont (http://github.com/savetheclocktower)
+*/
 (function()
 {
   var _ieBorderWidthKeywords = {
