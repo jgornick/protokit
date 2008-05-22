@@ -4,16 +4,18 @@
     Andrew Dupont (http://github.com/savetheclocktower)
 */
 
-Object.extend(document, {
-  enableTextResizeDetection: function(time)
+(function()
+{
+  var _el;
+  var _size;
+  var _pe;
+  
+  function _createSpan()
   {
-    // Default to 1 second.
-    if (typeof time == 'undefined') time = 1000;
-
     // We need to insert a span with the M character in it.  The offsetHeight
     // will give us the font size as this is the definition of the CSS font-size
     // attribute.
-    var el = new Element('span')
+    _el = new Element('span')
       .setStyle({
         visibility: 'hidden',
         position: 'absolute',
@@ -26,80 +28,83 @@ Object.extend(document, {
       .update('M');
     
     // Insert the element at the "top" of the body.
-    $(document.body).insert({ top: el });
-    
-    // Setup our text resize detection object on the document.
-    document._textResizeDetection = {
-      el: el,
-      size: el.offsetHeight,
-      pe: null
-    };
-
-    // Start our PeriodicalExecuter
-    document._textResizeDetection.pe = new PeriodicalExecuter(function() 
-    {
-      var currentSize = document._textResizeDetection.el.offsetHeight;
-      if (document._textResizeDetection.size != currentSize) 
-      {
-        document.fire('text:resized', {
-          previousSize: document._textResizeDetection.size,
-          currentSize: currentSize
-        });
-        document._textResizeDetection.size = currentSize;
-      }
-    }, (time / 1000));
-    
-    return document;
-  },
+    $(document.body).insert({ top: _el });
+  }
   
-  disableTextResizeDetection: function()
+  function _checkTextSize() 
   {
-    // Stop the periodical executer
-    document._textResizeDetection.pe.stop();
-    document._textResizeDetection.pe = null;
+    var currentSize = _el.offsetHeight;
+    if (_size != currentSize) 
+    {
+      document.fire('text:resize', {
+        previousSize: _size,
+        currentSize: currentSize
+      });
+      _size = currentSize;
+    }
+  }
+  
+  Object.extend(document, {
+    enableTextResizeDetection: function(time)
+    {
+      // Default to 1 second.
+      if (typeof time == 'undefined') time = 1000;
+      
+      _createSpan();
+      
+      _size = _el.offsetHeight;
+  
+      // Start our PeriodicalExecuter
+      _pe = new PeriodicalExecuter(_checkTextSize, (time / 1000));
+      
+      return document;
+    },
     
-    // Remove the span element.
-    document._textResizeDetection.el.remove();
-    document._textResizeDetection.el = null;
-    
-    // Remove the _textResizeDetection object on the document.
-    document._textResizeDetection = null;
-    delete document._textResizeDetection;
-    
-    return document;
-  } 
-});
+    disableTextResizeDetection: function()
+    {
+      // Stop the periodical executer
+      _pe.stop();
+      _pe = null;
+      
+      // Remove the span element.
+      _el.remove();
+      _el = null;
+         
+      return document;
+    } 
+  });  
+})();
 
 (function()
 {
   var IDLE_TIME = 1000;
   
-  var EVENTS = [
+  var _events = [
     [window, 'scroll'],
     [window, 'resize'],
     [document, 'mousemove'],
     [document, 'click'],
-    [document, 'keydown'],
+    [document, 'keydown']
   ];
   
   var _timer, _idleTime;
   
-  function resetTimer()
+  function _resetTimer()
   {
     window.clearTimeout(_timer);
     _idleTime = new Date();
-    _timer = window.setTimeout(setIdle, IDLE_TIME)
+    _timer = window.setTimeout(_setIdle, IDLE_TIME)
   }
   
-  function setIdle() 
+  function _setIdle() 
   { 
     document.fire('state:idle'); 
   }
   
-  function setActive() 
+  function _setActive() 
   {
     document.fire('state:active', { idleTime: new Date() - _idleTime });
-    resetTimer();
+    _resetTimer();
   }
   
   Object.extend(document, {
@@ -107,26 +112,28 @@ Object.extend(document, {
     {
       if (typeof time != 'undefined') IDLE_TIME = time;
       
-      EVENTS.each(function(e) { Event.observe(e[0], e[1], setActive); });
+      _events.each(function(e) { Event.observe(e[0], e[1], _setActive); });
     },
     
     disableIdleState: function()
     {
-      EVENTS.each(function(e) { Event.stopObserving(e[0], e[1], setActive); });
+      events.each(function(e) { Event.stopObserving(e[0], e[1], _setActive); });
     }
   });
 })();
 
 
-(function() {
-  function respondToMouseOver(event) 
+(function() 
+{
+  function _onMouseOver(event) 
   {
     var target = event.element();
     if (event.relatedTarget && !event.relatedTarget.descendantOf(target))
       target.fire('mouse:enter');
   }
   
-  function respondToMouseOut(event) {
+  function _onMouseOut(event) 
+  {
     var target = event.element();
     if (event.relatedTarget && !event.relatedTarget.descendantOf(target))
       target.fire('mouse:leave');
@@ -141,8 +148,8 @@ Object.extend(document, {
         	.observe('mouseleave', function(event) { event.element().fire('mouse:leave'); });
       else
         document
-          .observe('mouseover', respondToMouseOver)
-          .observe('mouseout', respondToMouseOut);
+          .observe('mouseover', _onMouseOver)
+          .observe('mouseout', _onMouseOut);
     },
     
     disableMouseEnterLeave: function()
@@ -153,8 +160,8 @@ Object.extend(document, {
         	.stopObserving('mouseleave', function(event) { event.element().fire('mouse:leave'); });
       else
         document
-          .stopObserving('mouseover', respondToMouseOver)
-          .stopObserving('mouseout', respondToMouseOut);
+          .stopObserving('mouseover', _onMouseOver)
+          .stopObserving('mouseout', _onMouseOut);
     }
   });
 })();
