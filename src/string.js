@@ -48,6 +48,15 @@ Object.extend(String.prototype, {
   toMethodName: function() 
   {
     return this.titleize().without(/\s/).uncapitalize();
+  },
+  
+  getFileExtension: function()
+  {
+    var match = this.match(/^(.*)(\.)(.*)$/);
+    
+    if (match != null) return match.last();
+    
+    return '';
   }  
 });
 
