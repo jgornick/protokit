@@ -82,5 +82,97 @@ Element.addMethods({
   enableClassName: function(element, className, condition) 
   {
     return Element[condition ? 'addClassName' : 'removeClassName'](element, className);
-  } 
+  },
+  
+  wrapContent: function(element, wrapper, attributes) 
+  {
+    if (!(element = $(element))) return;
+    
+    if (Object.isElement(wrapper))
+      $(wrapper).writeAttribute(attributes || { })
+    else if (Object.isString(wrapper))
+      wrapper = new Element(wrapper, attributes);
+    else wrapper = new Element('div', wrapper);
+    
+    while (element.firstChild)
+      wrapper.appendChild(element.firstChild)
+    
+    element.appendChild(wrapper);
+    
+    return element;
+  }
 });
+
+(function() 
+{
+  var _initPointer, _currentDraggable, _dragging;
+    
+  function _onMouseDown(event) 
+  {
+    var draggable = event.findElement('[element:draggable="true"]');
+  
+    if (draggable) 
+    {
+     event.stop();
+     _currentDraggable = draggable;
+     _initPointer = event.pointer();
+    
+     document.observe('mousemove', _onMouseMove).observe('mouseup', _onMouseUp);
+    }
+  };
+  
+  function _onMouseMove(event) 
+  {
+    event.stop();
+  
+    if (_dragging)
+     _fireEvent('drag:update', event);
+    else 
+    {
+      _dragging = true;
+	    _fireEvent('drag:start', event);
+    }
+  };
+  
+  function _onMouseUp(event) 
+  {
+    document.stopObserving('mousemove', _onMouseMove).stopObserving('mouseup', _onMouseUp);
+  
+    if (_dragging) 
+    {
+     _dragging = false;
+     _fireEvent('drag:end', event);
+    }
+  };
+  
+  function _fireEvent(eventName, mouseEvent) 
+  {
+    var pointer = mouseEvent.pointer();
+  
+    _currentDraggable.fire(eventName, {
+     dx: pointer.x - _initPointer.x,
+     dy: pointer.y - _initPointer.y,
+     mouseEvent: mouseEvent
+    });
+  };
+  
+  Element.addMethods({
+    enableDrag: function(element) 
+    {
+     element = $(element);
+     return element.writeAttribute('element:draggable', 'true');
+    },
+    
+    disableDrag: function(element)
+    {
+     element = $(element);
+     return element.writeAttribute('element:draggable', null);
+    },
+    
+    isDraggable: function(element) {
+     return $(element).readAttribute('element:draggable') == 'true';
+    }
+  });
+  
+  document.observe('mousedown', _onMouseDown);
+})();

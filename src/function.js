@@ -6,13 +6,13 @@
 Object.extend(Function.prototype, {
   _new: function() 
   {
-    var __method = this, args = arguments;
+    var __method = this, args = $A(arguments);
     function C() { return __method.apply(this, args); };
     C.prototype = __method.prototype;
     return new C;
   },
   
-  negate: function() 
+  not: function() 
   {
     var f = this;
     return function() { return !f.apply(f, arguments); };

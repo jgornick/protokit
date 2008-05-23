@@ -165,3 +165,34 @@
     }
   });
 })();
+
+(function() 
+{
+  function _onMouseWheel(event) 
+  {
+    var realDelta;
+ 
+    // normalize the delta
+    if (event.wheelDelta) // IE & Opera
+      realDelta = event.wheelDelta / 120;
+    else if (event.detail) // W3C
+      realDelta = -event.detail / 3;
+ 
+    if (!realDelta) return;
+    
+    var customEvent = event.element().fire("mouse:wheel", { delta: realDelta });
+    if (customEvent.stopped) event.stop();
+  }
+  
+  Object.extend(document, {
+    enableMouseWheel: function() 
+    {
+      document.observe("mousewheel", _onMouseWheel).observe("DOMMouseScroll", _onMouseWheel);
+    },
+    
+    disableMouseWheel: function()
+    {
+      document.stopObserving("mousewheel", _onMouseWheel).stopObserving("DOMMouseScroll", _onMouseWheel);
+    }
+  });
+})();
