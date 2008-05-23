@@ -57,7 +57,39 @@ Object.extend(String.prototype, {
     if (match != null) return match.last();
     
     return '';
-  }  
+  },
+  
+  namespace: function(parent) 
+  {
+    return this.split('.').inject(parent || window, function(object, property) 
+    {
+      return object[property] = object[property] || { };
+    });
+  },
+  
+  pad: function(length, chr, type)
+  {
+    if (typeof chr == 'undefined') chr = ' ';
+    if (typeof type == 'undefined') type = 0;
+    
+    if (length == this.length) return this;
+    
+    var l = (length - this.length);
+    var c = String(chr).times(l);
+    
+    if (type == 0) return c + this;
+    else return this + c;
+  },
+  
+  padLeft: function(length, chr)
+  {
+    return this.pad(length, chr, 0);
+  },
+  
+  padRight: function(length, chr)
+  {
+    return this.pad(length, chr, 1);
+  }
 });
 
 Object.extend(String.prototype, Enumerable);
