@@ -58,5 +58,10 @@ Object.extend(Array.prototype, {
       
     this.splice.apply(this, [ index, 0 ].concat(Array.slice(arguments, 1)));
     return this;
+  },
+  
+  clone: function()
+  {
+    return this.concat();
   }
 });
