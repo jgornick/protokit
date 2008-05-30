@@ -100,6 +100,98 @@ Element.addMethods({
     element.appendChild(wrapper);
     
     return element;
+  },
+  
+	disableSelection: function(element, cursor)
+  {
+    element = $(element);
+		cursor = cursor || 'default';
+    
+    element.__onselectstart = element.onselectstart;
+		element.onselectstart = ProtoKit.falseFunction;
+    
+    element.unselectable = 'on';
+    element.setTempStyles({
+      MozUserSelect: 'none',
+      cursor: cursor
+    });
+		
+    return element;
+	},
+  
+	enableSelection: function(element)
+  {
+		element = $(element);
+    
+    element.onselectstart = element.__onselectstart || ProtoKit.trueFunction;
+    element.unselectable = 'off';
+    
+    element.removeTempStyles(['MozUserSelect', 'cursor']);
+
+    return element;
+	},
+  
+  setTempStyles: function(element, styles) 
+  {
+    element = $(element);
+    
+    for (var property in styles)
+      element['_original_' + property] = element.style[property];
+
+    return element.setStyle(styles);
+  },
+  
+  removeTempStyles: function(element) 
+  {
+    element = $(element);
+    
+    var specifiedStyles = arguments[1];
+    
+    if (typeof specifiedStyles != 'undefined')
+      if ((typeof specifiedStyles == 'object') && (!Object.isArray(specifiedStyles)))
+        specifiedStyles = $H(specifiedStyles).keys();
+          
+    var prop, styles = {};
+    for (var property in element) 
+    {
+      if (!property.startsWith('_original_')) continue;
+      prop = property.replace(/^_original_/, '');
+      
+      // If there are specified styles, then only remove those temp styles.
+      if ((typeof specifiedStyles != 'undefined') && (!specifiedStyles.include(prop))) continue;
+      
+      styles[prop] = element[property] || '';
+      element[property] = undefined;
+    }
+    
+    return element.setStyle(styles);
+  },
+  
+  setAccessibleStyles: function(element)
+  {
+    element = $(element);
+    
+    return element.setTempStyles({
+      visibility: 'hidden',
+      position: 'absolute',
+      display: 'block'
+    });
+  },
+  
+  removeAccessibleStyles: function(element)
+  {
+    element = $(element);
+    
+    return element.removeTempStyles(['visibility', 'position', 'display']);
+  },
+  
+  isAccessible: function(element)
+  {
+    element = $(element);
+    
+    var display = element.getStyle('display');
+    
+    return !(display === 'none' || display === null || element.offsetHeight == 0);
   }
 });
 
