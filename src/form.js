@@ -117,3 +117,25 @@ Element.addMethods(['INPUT', 'TEXTAREA'], {
     return element;
   }
 });
+
+Element.addMethods(['SELECT'], {
+  selectOptionByValue: function(element, value) 
+  {
+    element = $(element);
+    
+    var index = 0;
+   
+    Element.childElements(element).each(function(element, i) 
+    {
+      if (element.value == value) 
+      {    
+        index = i;    
+        throw $break;
+      }
+    });
+    
+    element.selectedIndex = index;
+    
+    return element;
+  }
+});

@@ -192,8 +192,70 @@ Element.addMethods({
     var display = element.getStyle('display');
     
     return !(display === 'none' || display === null || element.offsetHeight == 0);
+  },
+  
+  indexOf: function(element) 
+  {
+    var parent = $(element.parentNode);
+    if (!parent) return;
+    return parent.childElements().indexOf(element);
+  },
+  
+  isTagName: function(element, tagName) 
+  {
+    if (!element.tagName) return null;
+    return element.tagName.toUpperCase() == String(tagName).toUpperCase();
+  },
+
+  delegate: function(element, eventName, selector, handler) 
+  {  
+    if (Object.isElement(selector)) 
+    {
+      return Event.observe(element, eventName, function(e) 
+      {
+        if (e.target == selector || e.target.descendantOf(selector))  
+          handler.call(selector, e);
+      });
+    }
+    else 
+    {
+      return Event.observe(element, eventName, function(e, element) 
+      {
+        if (!(element = e.findElement(selector))) return;
+        handler.call(e.target, e);
+      });
+    }
+  },
+  
+  fillDocument: function(element) 
+  {
+    element = $(element);
+    
+    var vpDim = document.viewport.getDimensions();
+    var docDim = $(document.documentElement).getDimensions();
+    
+    return element.setStyle({
+      width: Math.max(docDim.width, vpDim.width) + 'px',
+      height: Math.max(docDim.height, vpDim.height) + 'px'
+    });
+  },
+  
+  centerInViewport: function(element) 
+  {
+   element = $(element);
+   
+   var vpDim = document.viewport.getDimensions();
+   var offsets = document.viewport.getScrollOffsets();
+   var elDim = Element.getDimensions(element);
+   
+   return element.setStyle({
+     left: (((vpDim.width - elDim.width) / 2) + offsets.left) + 'px',
+     top: (((vpDim.height - elDim.height) / 2) + offsets.top) + 'px'
+   });
   }
 });
+
+document.delegate = Element.Methods.delegate.curry(document);
 
 (function() 
 {

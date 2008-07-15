@@ -63,5 +63,33 @@ Object.extend(Array.prototype, {
   clone: function()
   {
     return this.concat();
+  },
+
+  isUnique: function(value)
+  {
+    var idx = this.indexOf(value);
+    return this.indexOf(value, idx + 1) == -1;  
+  },
+  
+  sliceNonUnique: function() 
+  {
+    var result = [], clone = this.sort();
+    
+    for (var i=0, l=clone.length; i<l; i++) 
+    {
+      if (clone[i] === clone[i+1]) 
+      {
+        var temp = [];
+        
+        while (clone[i] === clone[i+1])
+          temp.push(clone[i]); i++;
+    
+        if (clone[i] === clone[i-1]) 
+          temp.push(clone[i]);
+    
+        result.push(temp);
+      }
+    }
+    return result;
   }
 });
