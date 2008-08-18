@@ -252,7 +252,28 @@ Element.addMethods({
      left: (((vpDim.width - elDim.width) / 2) + offsets.left) + 'px',
      top: (((vpDim.height - elDim.height) / 2) + offsets.top) + 'px'
    });
-  }
+  },
+  
+  fire: Event.fire.wrap(function(proceed, element, eventName, memo) 
+  {
+    element = $(element);
+    var w, event, eventID;
+    $w(eventName)._each(function(name) 
+    {
+      if (name.include(':'))
+        return proceed(element, name, memo);
+      
+      eventID = (element._prototypeEventID || [null])[0];
+      if (!eventID || !(w = Event.cache[eventID][name])) return false;
+      
+      event = Event.extend({ });     
+      event.eventName = name;
+      event.memo = memo || { };
+      w._each(function(wrapper) { wrapper(event) });
+    });
+    
+    return element;
+  })
 });
 
 document.delegate = Element.Methods.delegate.curry(document);
