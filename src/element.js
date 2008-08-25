@@ -1,8 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-*/
-
 Element.addMethods({
   _observe: Element.observe.wrap(function(proceed, element, eventName, handler) 
   {

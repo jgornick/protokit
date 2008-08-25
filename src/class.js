@@ -1,11 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-    John David Dalton (http://github.com/jdalton)
-    Xilinus (http://github.com/xilinus)
-    Samuel Lebeau (http://github.com/samleb)
-*/
-
 (function()
 {
   function _getElement(object)

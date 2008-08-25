@@ -1,9 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-    Andrew Dupont (http://github.com/savetheclocktower)
-*/
-
 (function()
 {
   var _el;

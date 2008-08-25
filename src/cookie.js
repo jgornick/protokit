@@ -1,9 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-    Ryan Johnson (http://livepipe.net/downloads/prototype.tidbits.1.7.0.js)
-*/
-
 ProtoKit.Cookie = {
   set: function(name, value, seconds) {
     var expiry = '';

@@ -1,0 +1,19 @@
+/**
+ * ProtoKit
+ * A collection of Prototype helper functions.
+ *
+ * @author Joe Gornick (http://github.com/jgornick)
+ * @copyright 2008
+ * @license MIT
+ * @version <%= PROTOKIT_VERSION %>
+ * @url http://github.com/jgornick/protokit
+ * @credits 
+ *   Juriy Zaytsev (http://github.com/kangax)
+ *   Samuel Lebeau (http://github.com/samleb)
+ *   John David Dalton (http://github.com/jdalton)
+ *   Xilinus (http://github.com/xilinus)
+ *   Ryan Johnson (http://livepipe.net/downloads/prototype.tidbits.1.7.0.js)
+ *   Andrew Dupont (http://github.com/savetheclocktower)
+ *   datejs library (http://code.google.com/p/datejs/)
+ *   Pat Nakajima (http://github.com/nakajima)
+ */

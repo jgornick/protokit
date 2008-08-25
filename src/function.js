@@ -1,8 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-*/
-
 Object.extend(Function.prototype, {
   _new: function() 
   {

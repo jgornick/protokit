@@ -1,7 +1,3 @@
-/*
-  Credits:
-    datejs library (http://code.google.com/p/datejs/)
-*/
 function $D(date)
 {
   return Date.extend(date);

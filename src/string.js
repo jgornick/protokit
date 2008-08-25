@@ -1,9 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-    Pat Nakajima (http://github.com/nakajima)
-    Xilinus (http://github.com/xilinus)
-*/
 Object.extend(String.prototype, {
   _each: function() 
   {

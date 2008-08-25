@@ -1,9 +1,3 @@
-/*
-  Credits:
-    Juriy Zaytsev (http://github.com/kangax)
-    Samuel Lebeau (http://github.com/samleb)
-*/
-
 Object.extend(Array.prototype, {
   namespace: function(parent) 
   {
