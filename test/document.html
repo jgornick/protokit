@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>ProtoKit Document Tests</title>
+    <script type="text/javascript" src="../lib/prototype.js"></script>
+    <script type="text/javascript" src="../dist/protokit.js"></script>
+    <script type="text/javascript" src="../src/document.js"></script>
+	</head>
+	<body>
+	  
+    <script type="text/javascript">
+      document.observe('autobahn:pong', function(e) {
+        //console.log(e.memo.version); 
+      });
+      
+      document.observe('dom:loaded', function() {
+        document.loadScript('http://192.168.1.156/temp/ping.js', {
+          onComplete: function() {
+            console.log(swarmcastVersion);
+          }
+        });
+      });
+    </script>
+	</body>
+</html>

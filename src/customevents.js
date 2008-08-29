@@ -30,7 +30,7 @@
     var currentSize = _el.offsetHeight;
     if (_size != currentSize) 
     {
-      document.fire('text:resize', {
+      document.fire('text:resized', {
         previousSize: _size,
         currentSize: currentSize
       });

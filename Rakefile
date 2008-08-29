@@ -39,6 +39,7 @@ task :build do
     'array',
     'class',
     'date',
+    'document',
     'element',
     'dimensions',
     'form',
