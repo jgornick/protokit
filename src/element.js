@@ -81,16 +81,17 @@ Element.addMethods({
   
   wrapContent: function(element, wrapper, attributes) 
   {
-    if (!(element = $(element))) return;
+    element = $(element);
     
-    if (Object.isElement(wrapper))
-      $(wrapper).writeAttribute(attributes || { })
-    else if (Object.isString(wrapper))
+    if (wrapper.nodeType == 1)
+      $(wrapper).writeAttribute(attributes || { });
+    else if (typeof wrapper == 'string')
       wrapper = new Element(wrapper, attributes);
-    else wrapper = new Element('div', wrapper);
+    else 
+      wrapper = new Element('div', wrapper);
     
     while (element.firstChild)
-      wrapper.appendChild(element.firstChild)
+      wrapper.appendChild(element.firstChild);
     
     element.appendChild(wrapper);
     

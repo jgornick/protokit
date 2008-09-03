@@ -152,7 +152,7 @@ function $D(date)
       return null;
     }
   });
-})()
+})();
 
 Date.Methods = {
   resetTime: function(date)

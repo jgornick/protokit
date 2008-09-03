@@ -16,7 +16,7 @@
       if (typeof uri == 'object' && typeof uri.toString == 'function') uri = uri.toString();
   		if (typeof uri != 'undefined') r = uri.match(_regExp);
       
-  		if (!r) throw 'Invalid URI'
+  		if (!r) throw 'Invalid URI';
   		
       this.url         = _getVal(r,0);
   		this.protocol	   = (Object.isUndefined(_getVal(r,2))) ? 'http' : _getVal(r,2);

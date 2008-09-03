@@ -21,7 +21,7 @@ document.loadScript = function(url) {
   script.onload = function() {
     _onComplete(url);
     return;
-  }      
+  };      
   
   // Setup our onreadystatechange handler
   // NOTE: The readyState will be set to loaded even if the file is 404'd

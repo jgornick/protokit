@@ -53,9 +53,16 @@ task :build do
   
   # Insert our header file at the beginning of the array.
   src_files.insert(0, File.join(PROTOKIT_SRC_DIR, 'HEADER'))
+
+  # Create the dist directory
+  if !File.directory?(PROTOKIT_DIST_DIR)
+    FileUtils.mkdir 'dist'
+  end
    
   # Delete the existing protokit.js
-  File.delete(PROTOKIT_DIST_FILE)
+  if File.exist?(PROTOKIT_DIST_FILE)
+    File.delete(PROTOKIT_DIST_FILE)
+  end
   
   # Open a new protokit.js with read/write
   protokitfile = File.open(PROTOKIT_DIST_FILE, 'w+')
@@ -77,8 +84,15 @@ desc "Packs protokit.js using PackR"
 task :pack => :build do
   require 'packr'
   
+  # Create the dist directory
+  if !File.directory?(PROTOKIT_DIST_DIR)
+    FileUtils.mkdir 'dist'
+  end  
+  
   # Delete any existing packed file
-  File.delete(PROTOKIT_DIST_FILE_PACK)
+  if File.exist?(PROTOKIT_DIST_FILE_PACK)
+    File.delete(PROTOKIT_DIST_FILE_PACK)
+  end
   
   # Open the packed file with read/write
   protokitpacked = File.open(PROTOKIT_DIST_FILE_PACK, 'w+')
@@ -87,7 +101,7 @@ task :pack => :build do
   protokitpacked.puts(ERB.new(File.read(File.join(PROTOKIT_SRC_DIR, 'HEADER'))).result(binding))
   
   # Lastly, pack the protokit.js file and add it to the packed file
-  protokitpacked.puts(Packr.new.pack(File.read(PROTOKIT_DIST_FILE), :base62 => true, :shrink_vars => true))
+  protokitpacked.puts(Packr.new.pack(File.read(PROTOKIT_DIST_FILE), :base62 => true, :shrink_vars => false))
   
   protokitpacked.close
 end
