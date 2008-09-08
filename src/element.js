@@ -1,86 +1,107 @@
 Element.addMethods({
-  _observe: Element.observe.wrap(function(proceed, element, eventName, handler) 
-  {
-    return proceed.call(proceed, element, eventName, function(e) 
-    {
+  _observe: Element.observe.wrap(function(proceed, element, eventName, handler) {
+    return proceed.call(proceed, element, eventName, function(e) {
       Event.stop(e); handler.call(e.target, e);
     });
   }),
   
-  contains: function(element, pattern) 
-  {
+  containsText: function(element, pattern) {
     element = $(element);
     if (!pattern) return false;
     pattern = pattern.constructor == RegExp ? pattern : RegExp.escape(pattern);
     return !!element.innerHTML.stripTags().match(pattern);
   },
   
-  toTemplate: function(element) 
-  {
+  toTemplate: function(element) {
     if (!(element = $(element))) return null;
     return element.wrap().show().up().remove().innerHTML;
   },
   
-  replaceAttribute: function(element, attr, pattern, replacement) 
-  {
+  replaceAttribute: function(element, attr, pattern, replacement) {
     element = $(element);
     return el.writeAttribute(attr, element.readAttribute(attr)
       .replace(new RegExp(pattern), replacement)
     );
   },
   
-  replaceHTML: function(element, pattern, replacement) 
-  {
+  replaceHTML: function(element, pattern, replacement) {
     element = $(element);
     return element.update(
       element.innerHTML.replace(new RegExp(pattern), replacement)
     );
   },
   
-  toHTML: function(element) 
-  {
+  toHTML: function(element) {
     element = $(element);
     
-    try 
-    {
+    try {
       var xmlSerializer = new XMLSerializer();
       return element.nodeType == 4
         ? element.nodeValue
         : xmlSerializer.serializeToString(element);
-    } 
-    catch(e) 
-    {
+    } catch(e) {
       return (element.xml
         || element.outerHTML
         || element.cloneNode(true).wrap().innerHTML);
     }
   },
   
-  addHoverClassName: function(element, className) 
-  {
+  toFlashHTML: function(element) {
+    element = $(element);
+    
+    // Remove empty text nodes
+    element.cleanWhitespace();
+    
+    var html = [];   
+    var tagname = element.nodeName.toLowerCase();
+    
+    html.push('<' + tagname);
+    
+    for (var i = 0, len = element.attributes.length; i < len; i++)
+      if (element.attributes[i] != null)
+        html.push(' ' + element.attributes[i].name.toLowerCase() + '="' + element.attributes[i].value + '"');
+    
+    html.push((element.childNodes.length == 0) ? ' />' : '>');
+    
+    for (var i = 0, len = element.childNodes.length; i < len; i++) {
+      switch (element.childNodes[i].nodeType) {
+        case 1: // Element Node
+          html.push($(element.childNodes[i]).toFlashHTML());
+          break;
+        case 3: // Text Node
+          html.push(element.childNodes[i].data);
+          break;
+        case 4: // CDATA Node
+          html.push(element.childNodes[i].nodeValue);
+          break;
+      }     
+    }
+    
+    if (element.childNodes.length > 0) html.push('</' + tagname + '>');
+    
+    return html.join(''); 
+  },
+  
+  addHoverClassName: function(element, className) {
     return $(element).observe('mouseover', Element.addClassName.curry(element, className))
       .observe('mouseout', Element.removeClassName.curry(element, className));
   },
   
-  setProperty: function(element, name, value) 
-  {
+  setProperty: function(element, name, value) {
     if (!(element = $(element))) return;
     element[name] = value;
     return element;
   },
   
-  swapClassName: function(element, first, second) 
-  {
+  swapClassName: function(element, first, second) {
     return Element.removeClassName(element, first).addClassName(second);
   },
   
-  enableClassName: function(element, className, condition) 
-  {
+  enableClassName: function(element, className, condition) {
     return Element[condition ? 'addClassName' : 'removeClassName'](element, className);
   },
   
-  wrapContent: function(element, wrapper, attributes) 
-  {
+  wrapContent: function(element, wrapper, attributes) {
     element = $(element);
     
     if (wrapper.nodeType == 1)
@@ -98,8 +119,7 @@ Element.addMethods({
     return element;
   },
   
-	disableSelection: function(element, cursor)
-  {
+	disableSelection: function(element, cursor) {
     element = $(element);
 		cursor = cursor || 'default';
     
@@ -115,8 +135,7 @@ Element.addMethods({
     return element;
 	},
   
-	enableSelection: function(element)
-  {
+	enableSelection: function(element) {
 		element = $(element);
     
     element.onselectstart = element.__onselectstart || ProtoKit.trueFunction;
@@ -127,8 +146,7 @@ Element.addMethods({
     return element;
 	},
   
-  setTempStyles: function(element, styles) 
-  {
+  setTempStyles: function(element, styles) {
     element = $(element);
     
     for (var property in styles)
@@ -137,8 +155,7 @@ Element.addMethods({
     return element.setStyle(styles);
   },
   
-  removeTempStyles: function(element) 
-  {
+  removeTempStyles: function(element) {
     element = $(element);
     
     var specifiedStyles = arguments[1];
@@ -148,8 +165,7 @@ Element.addMethods({
         specifiedStyles = $H(specifiedStyles).keys();
           
     var prop, styles = {};
-    for (var property in element) 
-    {
+    for (var property in element) {
       if (!property.startsWith('_original_')) continue;
       prop = property.replace(/^_original_/, '');
       
@@ -163,8 +179,7 @@ Element.addMethods({
     return element.setStyle(styles);
   },
   
-  setAccessibleStyles: function(element)
-  {
+  setAccessibleStyles: function(element) {
     element = $(element);
     
     return element.setTempStyles({
@@ -174,15 +189,13 @@ Element.addMethods({
     });
   },
   
-  removeAccessibleStyles: function(element)
-  {
+  removeAccessibleStyles: function(element) {
     element = $(element);
     
     return element.removeTempStyles(['visibility', 'position', 'display']);
   },
   
-  isAccessible: function(element)
-  {
+  isAccessible: function(element) {
     element = $(element);
     
     var display = element.getStyle('display');
@@ -190,41 +203,32 @@ Element.addMethods({
     return !(display === 'none' || display === null || element.offsetHeight == 0);
   },
   
-  indexOf: function(element) 
-  {
+  indexOf: function(element) {
     var parent = $(element.parentNode);
     if (!parent) return;
     return parent.childElements().indexOf(element);
   },
   
-  isTagName: function(element, tagName) 
-  {
+  isTagName: function(element, tagName) {
     if (!element.tagName) return null;
     return element.tagName.toUpperCase() == String(tagName).toUpperCase();
   },
 
-  delegate: function(element, eventName, selector, handler) 
-  {  
-    if (Object.isElement(selector)) 
-    {
-      return Event.observe(element, eventName, function(e) 
-      {
+  delegate: function(element, eventName, selector, handler) {  
+    if (Object.isElement(selector)) {
+      return Event.observe(element, eventName, function(e) {
         if (e.target == selector || e.target.descendantOf(selector))  
           handler.call(selector, e);
       });
-    }
-    else 
-    {
-      return Event.observe(element, eventName, function(e, element) 
-      {
+    } else {
+      return Event.observe(element, eventName, function(e, element) {
         if (!(element = e.findElement(selector))) return;
         handler.call(e.target, e);
       });
     }
   },
   
-  fillDocument: function(element) 
-  {
+  fillDocument: function(element) {
     element = $(element);
     
     var vpDim = document.viewport.getDimensions();
@@ -236,8 +240,7 @@ Element.addMethods({
     });
   },
   
-  centerInViewport: function(element) 
-  {
+  centerInViewport: function(element) {
    element = $(element);
    
    var vpDim = document.viewport.getDimensions();
@@ -250,12 +253,10 @@ Element.addMethods({
    });
   },
   
-  fire: Event.fire.wrap(function(proceed, element, eventName, memo) 
-  {
+  fire: Event.fire.wrap(function(proceed, element, eventName, memo) {
     element = $(element);
     var w, event, eventID;
-    $w(eventName)._each(function(name) 
-    {
+    $w(eventName)._each(function(name) {
       if (name.include(':'))
         return proceed(element, name, memo);
       
@@ -274,16 +275,13 @@ Element.addMethods({
 
 document.delegate = Element.Methods.delegate.curry(document);
 
-(function() 
-{
+(function() {
   var _initPointer, _currentDraggable, _dragging;
     
-  function _onMouseDown(event) 
-  {
+  function _onMouseDown(event) {
     var draggable = event.findElement('[element:draggable="true"]');
   
-    if (draggable) 
-    {
+    if (draggable) {
      event.stop();
      _currentDraggable = draggable;
      _initPointer = event.pointer();
@@ -292,32 +290,27 @@ document.delegate = Element.Methods.delegate.curry(document);
     }
   };
   
-  function _onMouseMove(event) 
-  {
+  function _onMouseMove(event) {
     event.stop();
   
     if (_dragging)
      _fireEvent('drag:update', event);
-    else 
-    {
+    else {
       _dragging = true;
 	    _fireEvent('drag:start', event);
     }
   };
   
-  function _onMouseUp(event) 
-  {
+  function _onMouseUp(event) {
     document.stopObserving('mousemove', _onMouseMove).stopObserving('mouseup', _onMouseUp);
   
-    if (_dragging) 
-    {
+    if (_dragging) {
      _dragging = false;
      _fireEvent('drag:end', event);
     }
   };
   
-  function _fireEvent(eventName, mouseEvent) 
-  {
+  function _fireEvent(eventName, mouseEvent) {
     var pointer = mouseEvent.pointer();
   
     _currentDraggable.fire(eventName, {
@@ -328,14 +321,12 @@ document.delegate = Element.Methods.delegate.curry(document);
   };
   
   Element.addMethods({
-    enableDrag: function(element) 
-    {
+    enableDrag: function(element) {
      element = $(element);
      return element.writeAttribute('element:draggable', 'true');
     },
     
-    disableDrag: function(element)
-    {
+    disableDrag: function(element) {
      element = $(element);
      return element.writeAttribute('element:draggable', null);
     },
