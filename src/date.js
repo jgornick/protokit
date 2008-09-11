@@ -155,23 +155,23 @@ function $D(date)
     // Credit: Ken Snyder (http://kendsnyder.com/sandbox/date/)
     parseEx: function(date) {
       // If the passed value is already a date object, return it
-      if (date instanceof Date) return date;
+      if (date instanceof Date) return Date.extend(date);
       // If the passed value is an integer, interpret it as a unix timestamp
-      if (typeof date == 'number') return new Date(date * 1000);
+      if (typeof date == 'number') return Date.extend(new Date(date * 1000));
       
       // If the passed value is a string, attempt to parse it using Date.parse()
-      var parsable = date.trim();
+      var parsable = String(date).strip();
       var pattern;
       var current = parsable;
 
       for (var i = 0, len = Date.parseEx.patterns.length; i < len; i++)
       {
         ms = Date.parse(current);
-        if (!isNaN(ms)) return $D(new Date(ms));
+        if (!isNaN(ms)) return Date.extend(new Date(ms));
         pattern = Date.parseEx.patterns[i];
         if (typeof pattern == 'function') {
           obj = pattern(current);
-          if (obj instanceof Date) return obj;
+          if (obj instanceof Date) return Date.extend(obj);
         } else {
           current = parsable.replace(pattern[0], pattern[1]);
         }       
