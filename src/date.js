@@ -150,9 +150,61 @@ function $D(date)
       }   
 
       return null;
+    },
+    
+    // Credit: Ken Snyder (http://kendsnyder.com/sandbox/date/)
+    parseEx: function(date) {
+      // If the passed value is already a date object, return it
+      if (date instanceof Date) return date;
+      // If the passed value is an integer, interpret it as a unix timestamp
+      if (typeof date == 'number') return new Date(date * 1000);
+      
+      // If the passed value is a string, attempt to parse it using Date.parse()
+      var parsable = date.trim();
+      var pattern;
+      var current = parsable;
+
+      for (var i = 0, len = Date.parseEx.patterns.length; i < len; i++)
+      {
+        ms = Date.parse(current);
+        if (!isNaN(ms)) return $D(new Date(ms));
+        pattern = Date.parseEx.patterns[i];
+        if (typeof pattern == 'function') {
+          obj = pattern(current);
+          if (obj instanceof Date) return obj;
+        } else {
+          current = parsable.replace(pattern[0], pattern[1]);
+        }       
+      }
+      return NaN;
     }
   });
 })();
+
+// Credit: Ken Snyder (http://kendsnyder.com/sandbox/date/)
+Date.parseEx.patterns = [
+  [/-/g, '/'], // US-style time with dashes => Parsable US-style time
+  [/st|nd|rd|th/g, ''], // remove st, nd, rd and th    
+  [/(3[01]|[0-2]\d)\s*\.\s*(1[0-2]|0\d)\s*\.\s*([1-9]\d{3})/, '$2/$1/$3'], // World time => Parsable US-style time
+  [/([1-9]\d{3})\s*-\s*(1[0-2]|0\d)\s*-\s*(3[01]|[0-2]\d)/, '$2/$3/$1'], // ISO-style time => Parsable US-style time
+  function(str) { // 12-hour time
+    var match = str.match(/^(?:(.+)\s+)?([1-9]|1[012])(?:\s*\:\s*(\d\d))?(?:\s*\:\s*(\d\d))?\s*(am|pm)\s*$/i);
+    //                      ^opt. date  ^hour         ^opt. minute       ^opt. second          ^am or pm
+    if (match) {
+      if (match[1]) {
+        var d = Date.create(match[1]);
+        if (isNaN(d)) return;
+      } else {
+        var d = new Date();
+        d.setMilliseconds(0);
+      }
+      var hour = parseFloat(match[2]);
+      hour = match[5].toLowerCase() == 'am' ? (hour == 12 ? 0 : hour) : (hour == 12 ? 12 : hour + 12);
+      d.setHours(hour, parseFloat(match[3] || 0), parseFloat(match[4] || 0));
+      return d;
+    }
+  }   
+];
 
 Date.Methods = {
   resetTime: function(date)
